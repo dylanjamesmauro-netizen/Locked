@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Home</title>
+  <link id="favicon" rel="icon" href="">
+  <style>
+    body { margin: 0; background: black; color: white; font-family: sans-serif; display: flex; }
+    .sidebar { width: 220px; height: 100vh; background: #1a1a1a; padding: 20px; box-sizing: border-box; }
+    .sidebar input { width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: none; box-sizing: border-box; }
+    .sidebar a { display: block; color: white; text-decoration: none; padding: 12px 0; font-size: 18px; }
+    .sidebar a:hover { color: #3b82f6; }
+    .content { flex: 1; text-align: center; padding-top: 100px; }
+    .play-btn { display: inline-block; margin-top: 20px; background: #3b82f6; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>My Site</h2>
+    <input type="text" placeholder="Search games..." onkeydown="if(event.key==='Enter') location.href='games.html?q='+this.value">
+    <a href="index.html">Home</a>
+    <a href="games.html">Games</a>
+    <a href="ai.html">AI Helper</a>
+    <a href="about.html">About</a>
+    <a href="settings.html">Settings</a>
+  </div>
+
+  <div class="content">
+    <h1>Welcome to My Site</h1>
+    <p>Use the sidebar to search, chat with the AI, or switch pages.</p>
+    <a href="games.html" class="play-btn">Browse Games</a>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Helper</title>
+  <link id="favicon" rel="icon" href="">
+  <style>
+    body { margin: 0; background: black; color: white; font-family: sans-serif; display: flex; }
+    .sidebar { width: 220px; height: 100vh; background: #1a1a1a; padding: 20px; box-sizing: border-box; }
+    .sidebar input { width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: none; box-sizing: border-box; }
+    .sidebar a { display: block; color: white; text-decoration: none; padding: 12px 0; font-size: 18px; }
+    .sidebar a:hover { color: #3b82f6; }
+    .content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 40px; }
+    #chat-box { width: 80%; max-width: 600px; height: 350px; background: #111; border: 1px solid #333; border-radius: 8px; padding: 15px; overflow-y: auto; text-align: left; margin-bottom: 15px; }
+    .input-row { display: flex; width: 80%; max-width: 600px; gap: 10px; }
+    .input-row input { flex: 1; padding: 12px; border-radius: 6px; border: none; font-size: 16px; }
+    .input-row button { padding: 12px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <h2>My Site</h2>
+    <input type="text" placeholder="Search games..." onkeydown="if(event.key==='Enter') location.href='games.html?q='+this.value">
+    <a href="index.html">Home</a>
+    <a href="games.html">Games</a>
+    <a href="ai.html">AI Helper</a>
+    <a href="about.html">About</a>
+    <a href="settings.html">Settings</a>
+  </div>
+
+  <div class="content">
+    <h1>Site AI Helper</h1>
+    <div id="chat-box">
+      <p><b>AI:</b> Hi! Ask me to recommend a game, tell a joke, or help with the site.</p>
+    </div>
+    <div class="input-row">
+      <input type="text" id="user-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
