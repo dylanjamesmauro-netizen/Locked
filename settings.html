@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Locked</title>
+  <link id="favicon" rel="shortcut icon" type="image/png" href="">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    input[name="stab"] { display: none; }
+    .tabs-bar { display: flex; gap: 10px; background: var(--card-bg); padding: 8px; border-radius: 14px; border: 1px solid var(--border-color); margin-bottom: 30px; box-shadow: 0 0 18px var(--accent-glow); }
+    .tab-btn { padding: 10px 24px; border-radius: 10px; color: #cbd5e1; font-size: 15px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease; }
+    .tab-btn:hover { transform: scale(1.04); box-shadow: 0 0 18px var(--accent-glow-strong); color: white; }
+    #t-app:checked ~ .tabs-bar label[for="t-app"], #t-clk:checked ~ .tabs-bar label[for="t-clk"], #t-cus:checked ~ .tabs-bar label[for="t-cus"] { background: var(--accent); color: white; box-shadow: 0 0 14px var(--accent-glow); }
+    .tab-panel { display: none; width: 100%; max-width: 560px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 28px; text-align: left; box-shadow: 0 0 24px var(--accent-glow); }
+    #t-app:checked ~ #appearance, #t-clk:checked ~ #cloaking, #t-cus:checked ~ #customizing { display: block; }
+    .vertical-stack { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; width: 100%; }
+    .subsection-divider { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--border-color); }
+    .subsection-title { font-size: 17px; font-weight: 700; color: var(--accent-light); margin-bottom: 4px; text-shadow: 0 0 12px var(--accent-glow); }
+    .row-card { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; width: 100%; background: var(--row-bg); border: 1px solid var(--border-color); padding: 14px 18px; border-radius: 12px; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+    .row-card:hover { transform: scale(1.015); border-color: var(--accent-light); box-shadow: 0 0 20px var(--accent-glow-strong); z-index: 2; }
+    .row-card.dropdown-row-open { z-index: 999 !important; transform: none !important; }
+    .sub-card { margin-left: 16px; width: calc(100% - 16px); border-left: 3px solid var(--accent-bright); }
+    .perf-meter-box { width: 100%; background: var(--row-bg); border: 1px solid var(--border-color); padding: 14px 18px; border-radius: 12px; margin-top: 4px; pointer-events: none; user-select: none; }
+    .perf-meter-label { font-size: 12px; font-weight: 600; color: var(--accent-light); margin-bottom: 10px; }
+    .perf-segments { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 100%; }
+    .perf-seg-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .perf-seg { width: 100%; height: 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); transition: background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+    .perf-seg.filled { background: var(--accent-bright); border-color: var(--accent-light); box-shadow: 0 0 10px var(--accent-glow); }
+    .perf-num { font-size: 11px; font-weight: 700; color: #64748b; transition: color 0.25s ease; }
+    .perf-num.active { color: var(--accent-light); }
+    .vertical-stack .btn { width: 100%; margin: 0; text-align: center; }
+    .custom-dropdown { position: relative; width: 210px; user-select: none; flex-shrink: 0; z-index: 10; }
+    .dropdown-trigger { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: #f8fafc; font-size: 14px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 0 10px var(--accent-glow); }
+    .dropdown-trigger:hover { background: var(--input-hover); border-color: var(--accent-light); transform: scale(1.03); box-shadow: 0 0 20px var(--accent-glow-strong); }
+    .dropdown-arrow { width: 16px; height: 16px; stroke: var(--accent-light); transition: transform 0.2s ease; }
+    .custom-dropdown.open .dropdown-trigger { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-color: var(--accent-bright); border-bottom-color: var(--border-color); background: var(--input-hover); transform: none; }
+    .custom-dropdown.open .dropdown-arrow { transform: rotate(180deg); }
+    .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--menu-bg); border: 1px solid var(--accent-bright); border-top: none; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; overflow: hidden; z-index: 1000; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 16px var(--accent-glow); }
+    .custom-dropdown.open .dropdown-menu { display: block; }
+    .dropdown-item { padding: 10px 14px; font-size: 14px; font-weight: 600; color: #e2e8f0; cursor: pointer; transition: background 0.15s, color 0.15s; }
+    .dropdown-item:hover { background: var(--accent); color: #ffffff; }
+    .dropdown-item.selected { background: var(--nav-active); color: #ffffff; }
+    .custom-input { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--input-bg); color: white; font-size: 14px; font-weight: 600; outline: none; transition: border-color 0.2s ease; }
+    .custom-input:focus { border-color: var(--accent-light); box-shadow: 0 0 12px var(--accent-glow); }
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; cursor: pointer; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #334155; transition: 0.3s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: 0.3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent-bright); box-shadow: 0 0 12px var(--accent-glow); }
+    input:checked + .slider:before { transform: translateX(24px); }
+    body.theme-black-white input:checked + .slider:before { background-color: #050505; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="9" height="12" rx="2.5" fill="#ffffff"/><rect x="11" y="4" width="9" height="12" rx="2.5" fill="#ffffff" fill-opacity="0.65"/></svg></div>
+        <span class="brand-name">Locked</span>
+      </div>
+      <input type="text" class="sidebar-search" placeholder="Search games..." onkeydown="if(event.key==='Enter') location.href='games.html?q='+this.value">
+      <div class="nav-links">
+        <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</a>
+        <a href="games.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Games</a>
+        <a href="ai.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S9.83 13 9 13s-1.5-.67-1.5-1.5zM16 17H8v-2h8v2zm-.5-4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>AI Helper</a>
+        <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>About</a>
+      </div>
+    </div>
+    <div class="sidebar-bottom" style="display:flex; flex-direction:column; gap:8px;">
+      <a href="account.html" class="nav-item" id="sidebar-account-link"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="sidebar-account-text">Sign In</span></a>
+      <a href="settings.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</a>
+    </div>
+  </div>
+  <div class="content">
+    <h1 style="margin-bottom: 20px;">Settings</h1>
+    <input type="radio" name="stab" id="t-app" checked>
+    <input type="radio" name="stab" id="t-clk">
+    <input type="radio" name="stab" id="t-cus">
+
+    <div class="tabs-bar">
+      <label for="t-app" class="tab-btn">Appearance</label>
+      <label for="t-clk" class="tab-btn">Cloaking</label>
+      <label for="t-cus" class="tab-btn">Customizing</label>
+    </div>
+
+    <div id="appearance" class="tab-panel">
+      <h2>Appearance</h2>
+      <div style="color:#94a3b8; margin-top:6px;">Customize how the site looks:</div>
+      <div class="vertical-stack">
+        <div class="row-card">
+          <div><b>Themes</b><br><small style="color:#94a3b8;">Change the background style across the site</small></div>
+          <div class="custom-dropdown" id="theme-dd">
+            <div class="dropdown-trigger" onclick="toggleDropdown('theme-dd', event)">
+              <span id="theme-label">Purple & Black Aura</span>
+              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-item" data-val="theme-black-white" onclick="pickTheme('theme-black-white', 'Black/White')">Black/White</div>
+              <div class="dropdown-item" data-val="theme-blue-black" onclick="pickTheme('theme-blue-black', 'Blue & Black Aura')">Blue & Black Aura</div>
+              <div class="dropdown-item" data-val="theme-green-black" onclick="pickTheme('theme-green-black', 'Green & Black Aura')">Green & Black Aura</div>
+              <div class="dropdown-item" data-val="theme-purple-black" onclick="pickTheme('theme-purple-black', 'Purple & Black Aura')">Purple & Black Aura</div>
+              <div class="dropdown-item" data-val="theme-purple-blue" onclick="pickTheme('theme-purple-blue', 'Purple & Blue Aura')">Purple & Blue Aura</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="subsection-divider">
+        <div class="subsection-title">Performance</div>
+        <div style="color:#94a3b8; font-size:13px;">Adjust visual effects to match your device speed:</div>
+        <div class="vertical-stack" style="margin-top:14px;">
+          <div class="row-card">
+            <div><b>Mouse highlight tracking</b><br><small style="color:#94a3b8;">Soft glow that follows your cursor</small></div>
+            <label class="switch"><input type="checkbox" class="perf-switch" id="mouse-track-toggle" checked onchange="toggleMouseTracking(this.checked)"><span class="slider"></span></label>
+          </div>
+          <div class="row-card">
+            <div><b>Glow</b><br><small style="color:#94a3b8;">Neon theme glow on buttons, sidebar, and cards</small></div>
+            <label class="switch"><input type="checkbox" class="perf-switch" id="glow-toggle" checked onchange="toggleGlow(this.checked)"><span class="slider"></span></label>
+          </div>
+          <div class="row-card">
+            <div><b>Hover transforms</b><br><small style="color:#94a3b8;">Enlarge and glow brighter when hovering over items</small></div>
+            <label class="switch"><input type="checkbox" class="perf-switch" id="hover-transform-toggle" checked onchange="toggleHoverTransforms(this.checked)"><span class="slider"></span></label>
+          </div>
+          <div class="row-card">
+            <div><b>Animated background</b><br><small style="color:#94a3b8;">Smoothly flowing gradient aura in the background</small></div>
+            <label class="switch"><input type="checkbox" class="perf-switch" id="bg-anim-toggle" checked onchange="toggleBgAnimation(this.checked)"><span class="slider"></span></label>
+          </div>
+          <div class="perf-meter-box">
+            <div class="perf-meter-label" id="perf-meter-text">low performance (made for high end devices)</div>
+            <div class="perf-segments">
+              <div class="perf-seg-col"><div class="perf-seg filled" id="perf-seg-0"></div><span class="perf-num active" id="perf-num-0">0</span></div>
+              <div class="perf-seg-col"><div class="perf-seg filled" id="perf-seg-1"></div><span class="perf-num active" id="perf-num-1">1</span></div>
+              <div class="perf-seg-col"><div class="perf-seg filled" id="perf-seg-2"></div><span class="perf-num active" id="perf-num-2">2</span></div>
+              <div class="perf-seg-col"><div class="perf-seg filled" id="perf-seg-3"></div><span class="perf-num active" id="perf-num-3">3</span></div>
+              <div class="perf-seg-col"><div class="perf-seg filled" id="perf-seg-4"></div><span class="perf-num active" id="perf-num-4">4+</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="cloaking" class="tab-panel">
+      <h2>Cloaking</h2>
+      <div style="color:#94a3b8; margin-top:6px;">Disguise your browser tab or launch inside about:blank:</div>
+      <div class="vertical-stack">
+        <div class="row-card">
+          <div><b>Tab Disguise</b><br><small style="color:#94a3b8;">Change the tab name and icon</small></div>
+          <div class="custom-dropdown" id="disguise-dd">
+            <div class="dropdown-trigger" onclick="toggleDropdown('disguise-dd', event)">
+              <span id="disguise-label">None</span>
+              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-item" data-val="none" onclick="pickDisguise('none', 'None')">None</div>
+              <div class="dropdown-item" data-val="clever" onclick="pickDisguise('clever', 'Clever')">Clever</div>
+              <div class="dropdown-item" data-val="custom" onclick="pickDisguise('custom', 'Custom')">Custom</div>
+            </div>
+          </div>
+        </div>
+        <div class="row-card sub-card" id="custom-name-row" style="display:none;">
+          <div><b>Custom name</b><br><small style="color:#94a3b8;">Type to change the tab name up top</small></div>
+          <input type="text" id="custom-tab-input" class="custom-input" style="width:200px;" placeholder="Enter tab name..." oninput="updateCustomTabName(this.value)">
+        </div>
+        <div class="row-card">
+          <div><b>URL Disguise</b><br><small style="color:#94a3b8;">Change the URL up top</small></div>
+          <div class="custom-dropdown" id="url-dd">
+            <div class="dropdown-trigger" onclick="toggleDropdown('url-dd', event)">
+              <span id="url-label">Default</span>
+              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-item" data-val="default" onclick="pickUrlDisguise('default', 'Default')">Default</div>
+              <div class="dropdown-item" data-val="about:blank" onclick="pickUrlDisguise('about:blank', 'About:Blank')">About:Blank</div>
+            </div>
+          </div>
+        </div>
+        <div class="row-card sub-card" id="startup-blank-row" style="display:none;">
+          <div><b>about:blank on startup</b><br><small style="color:#94a3b8;">Open Locked in about:blank automatically</small></div>
+          <label class="switch"><input type="checkbox" id="startup-blank-toggle" onchange="toggleStartupBlank(this.checked)"><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <div id="customizing" class="tab-panel">
+      <h2>Customizing</h2>
+      <div style="color:#94a3b8; margin-top:6px;">Personalize your experience:</div>
+      <div class="vertical-stack" id="customizing-list"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    function closeAllDropdowns() {
+      document.querySelectorAll('.custom-dropdown').forEach(function(dd) { dd.classList.remove('open'); });
+      document.querySelectorAll('.row-card').forEach(function(row) { row.classList.remove('dropdown-row-open'); });
+    }
+    function toggleDropdown(id, e) {
+      e.stopPropagation();
+      var target = document.getElementById(id);
+      var wasOpen = target.classList.contains('open');
+      closeAllDropdowns();
+      if (!wasOpen) {
+        target.classList.add('open');
+        var parentRow = target.closest('.row-card');
+        if (parentRow) parentRow.classList.add('dropdown-row-open');
+      }
+    }
+    document.addEventListener('click', closeAllDropdowns);
+    function markSelected(ddId, val) {
+      var dd = document.getElementById(ddId);
+      if (!dd) return;
+      dd.querySelectorAll('.dropdown-item').forEach(function(item) {
+        item.classList.toggle('selected', item.getAttribute('data-val') === val);
+      });
+    }
+    function pickTheme(themeClass, label) {
+      document.getElementById('theme-label').innerText = label;
+      markSelected('theme-dd', themeClass);
+      closeAllDropdowns();
+      safeSet('siteTheme', themeClass);
+      applyTheme();
+    }
+    function updatePerformanceMeter() {
+      var switches = document.querySelectorAll('.perf-switch');
+      var count = 0;
+      switches.forEach(function(sw) { if (sw.checked) count++; });
+      var level = Math.min(count, 4);
+      var labels = [
+        'high performance (made for low end devices)',
+        'mid-high performance (made for low-mid end devices)',
+        'balanced performance (made for mid-range devices)',
+        'mid-low performance (made for high-mid end devices)',
+        'low performance (made for high end devices)'
+      ];
+      document.getElementById('perf-meter-text').innerText = labels[level];
+      for (var i = 0; i <= 4; i++) {
+        var seg = document.getElementById('perf-seg-' + i);
+        var num = document.getElementById('perf-num-' + i);
+        if (seg) seg.classList.toggle('filled', i <= level);
+        if (num) num.classList.toggle('active', i <= level);
+      }
+    }
+    function toggleMouseTracking(isChecked) { safeSet('mouseTracking', isChecked ? 'true' : 'false'); initMouseTracking(); updatePerformanceMeter(); }
+    function toggleGlow(isChecked) { safeSet('siteGlow', isChecked ? 'true' : 'false'); applyGlow(); updatePerformanceMeter(); }
+    function toggleHoverTransforms(isChecked) { safeSet('hoverTransforms', isChecked ? 'true' : 'false'); applyHoverTransforms(); updatePerformanceMeter(); }
+    function toggleBgAnimation(isChecked) { safeSet('bgAnimation', isChecked ? 'true' : 'false'); applyBgAnimation(); updatePerformanceMeter(); }
+    function applyTabTop(title, iconData) {
+      document.title = title;
+      try { if (window.top && window.top.document) window.top.document.title = title; } catch (e) {}
+      [document, window.top ? window.top.document : null].forEach(function(d) {
+        if (!d) return;
+        try {
+          d.querySelectorAll("link[rel*='icon']").forEach(function(el) { el.remove(); });
+          if (iconData) {
+            var link = d.createElement('link');
+            link.id = 'favicon'; link.rel = 'shortcut icon'; link.type = 'image/png'; link.href = iconData;
+            d.head.appendChild(link);
+          }
+        } catch (e) {}
+      });
+    }
+    function pickDisguise(val, label) { document.getElementById('disguise-label').innerText = label; markSelected('disguise-dd', val); closeAllDropdowns(); setDisguise(val); }
+    function setDisguise(val) {
+      safeSet('tabDisguise', val);
+      var customRow = document.getElementById('custom-name-row');
+      var lockedIcon = makeLockedPNG();
+      var defaultTitle = safeGet('customBrandName') || 'Locked';
+      if (val === 'clever') {
+        customRow.style.display = 'none';
+        var icon = makeCleverPNG();
+        applyTabTop('Resources', icon);
+        safeSet('siteTitle', 'Resources');
+        try { localStorage.setItem('siteIcon', icon); } catch (e) {}
+      } else if (val === 'custom') {
+        customRow.style.display = 'flex';
+        try { localStorage.removeItem('siteIcon'); } catch (e) {}
+        var savedCustom = safeGet('customTabTitle') || '';
+        document.getElementById('custom-tab-input').value = savedCustom;
+        applyTabTop(savedCustom || defaultTitle, lockedIcon);
+        if (savedCustom) safeSet('siteTitle', savedCustom);
+      } else {
+        customRow.style.display = 'none';
+        applyTabTop(defaultTitle, lockedIcon);
+        safeRemove('siteTitle');
+        try { localStorage.removeItem('siteIcon'); } catch (e) {}
+      }
+    }
+    function updateCustomTabName(text) {
+      var defaultTitle = safeGet('customBrandName') || 'Locked';
+      var title = text.trim() || defaultTitle;
+      applyTabTop(title, makeLockedPNG());
+      safeSet('customTabTitle', text);
+      if (text.trim()) safeSet('siteTitle', title); else safeRemove('siteTitle');
+    }
+    function pickUrlDisguise(val, label) { document.getElementById('url-label').innerText = label; markSelected('url-dd', val); closeAllDropdowns(); setUrlDisguise(val); }
+    function setUrlDisguise(val) {
+      safeSet('urlDisguise', val);
+      var startupRow = document.getElementById('startup-blank-row');
+      if (val === 'about:blank') {
+        startupRow.style.display = 'flex';
+        if (!launchAboutBlank()) alert('Pop-up blocked! Click the blocked pop-up icon in your address bar and allow pop-ups.');
+      } else {
+        startupRow.style.display = 'none';
+        document.getElementById('startup-blank-toggle').checked = false;
+        safeSet('autoBlank', 'false');
+      }
+    }
+    function toggleStartupBlank(isChecked) { safeSet('autoBlank', isChecked ? 'true' : 'false'); }
+    function syncSettingsUI() {
+      var savedTheme = safeGet('siteTheme') || 'theme-purple-black';
+      var themeLabels = { 'theme-black-white': 'Black/White', 'theme-blue-black': 'Blue & Black Aura', 'theme-green-black': 'Green & Black Aura', 'theme-purple-black': 'Purple & Black Aura', 'theme-purple-blue': 'Purple & Blue Aura' };
+      document.getElementById('theme-label').innerText = themeLabels[savedTheme] || 'Purple & Black Aura';
+      markSelected('theme-dd', savedTheme);
+      document.getElementById('mouse-track-toggle').checked = (safeGet('mouseTracking') !== 'false');
+      document.getElementById('glow-toggle').checked = (safeGet('siteGlow') !== 'false');
+      document.getElementById('hover-transform-toggle').checked = (safeGet('hoverTransforms') !== 'false');
+      document.getElementById('bg-anim-toggle').checked = (safeGet('bgAnimation') !== 'false');
+      updatePerformanceMeter();
+      var savedDisguise = safeGet('tabDisguise') || 'none';
+      var disguiseLabels = { none: 'None', clever: 'Clever', custom: 'Custom' };
+      document.getElementById('disguise-label').innerText = disguiseLabels[savedDisguise] || 'None';
+      markSelected('disguise-dd', savedDisguise);
+      document.getElementById('custom-name-row').style.display = (savedDisguise === 'custom') ? 'flex' : 'none';
+      if (savedDisguise === 'custom') document.getElementById('custom-tab-input').value = safeGet('customTabTitle') || '';
+      var savedUrlDisguise = safeGet('urlDisguise') || 'default';
+      var urlLabels = { 'default': 'Default', 'about:blank': 'About:Blank' };
+      document.getElementById('url-label').innerText = urlLabels[savedUrlDisguise] || 'Default';
+      markSelected('url-dd', savedUrlDisguise);
+      document.getElementById('startup-blank-row').style.display = (savedUrlDisguise === 'about:blank') ? 'flex' : 'none';
+      document.getElementById('startup-blank-toggle').checked = (safeGet('autoBlank') === 'true');
+    }
+    syncSettingsUI();
+  </script>
+</body>
+</html>
