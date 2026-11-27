@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Locked</title>
+  <link id="favicon" rel="shortcut icon" type="image/png" href="">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .home-hero-wrap {
+      width: 100%;
+      max-width: 1320px;
+      min-height: calc(100vh - 60px);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 28px 56px;
+    }
+    .home-hero {
+      max-width: 680px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .hero-headline {
+      font-size: clamp(46px, 5.4vw, 68px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 16px var(--accent-glow));
+      min-height: 1.15em;
+      white-space: nowrap;
+    }
+    .hero-cursor {
+      display: inline-block;
+      width: 4px;
+      height: 0.92em;
+      margin-left: 4px;
+      vertical-align: -0.08em;
+      background: var(--accent-light);
+      -webkit-text-fill-color: initial;
+      animation: blinkCursor 0.85s steps(1) infinite;
+    }
+    @keyframes blinkCursor { 50% { opacity: 0; } }
+    .hero-desc {
+      color: #94a3b8;
+      font-size: 18px;
+      line-height: 1.65;
+      max-width: 520px;
+      margin-bottom: 32px;
+    }
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 36px;
+      border-radius: 12px;
+      background: var(--accent-bright);
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 700;
+      text-decoration: none;
+      border: 1px solid var(--accent-light);
+      box-shadow: 0 0 24px var(--accent-glow);
+      margin-bottom: 26px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    body.theme-black-white .hero-cta { color: #050505; }
+    .hero-cta:hover {
+      transform: scale(1.04) translateY(-1px);
+      box-shadow: 0 0 32px var(--accent-glow-strong);
+      background: var(--accent);
+    }
+    body.theme-black-white .hero-cta:hover { color: #ffffff; }
+    body.no-hover-transform .hero-cta:hover { transform: none !important; }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 12px; }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 18px;
+      border-radius: 11px;
+      background: var(--row-bg);
+      border: 1px solid var(--border-color);
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hero-pill svg { width: 17px; height: 17px; fill: currentColor; opacity: 0.9; }
+    .hero-pill:hover {
+      background: var(--nav-active);
+      border-color: var(--accent-light);
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+    body.no-hover-transform .hero-pill:hover { transform: none !important; }
+    .welcome-overlay { position: fixed; inset: 0; background: rgba(5, 3, 12, 0.84); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
+    .welcome-modal { width: 100%; max-width: 540px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px 28px; box-shadow: 0 0 36px var(--accent-glow); text-align: left; }
+    .setup-step { display: none; }
+    .setup-step.active { display: block; }
+    .welcome-title { font-size: 30px; font-weight: 800; margin-bottom: 8px; background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px var(--accent-glow)); }
+    .welcome-sub { color: #cbd5e1; font-size: 14px; line-height: 1.55; margin-bottom: 20px; }
+    .welcome-rows { display: flex; flex-direction: column; gap: 13px; width: 100%; }
+    .welcome-option { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 14px; background: var(--row-bg); border: 1px solid var(--border-color); padding: 16px 20px; border-radius: 14px; text-align: left; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+    .welcome-option:hover, .welcome-option.selected { background: var(--nav-active); border-color: var(--accent-light); box-shadow: 0 0 20px var(--accent-glow); }
+    .welcome-option:hover { transform: scale(1.015); }
+    body.no-hover-transform .welcome-option:hover { transform: none !important; }
+    .option-info { display: flex; flex-direction: column; gap: 4px; }
+    .welcome-option-title { font-size: 16px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px; }
+    .welcome-option-desc { font-size: 13px; color: #94a3b8; }
+    .rec-badge { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--accent); color: #ffffff; text-transform: lowercase; }
+    body.theme-black-white .rec-badge { color: #050505; }
+    .radio-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #64748b; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s; }
+    .welcome-option.selected .radio-dot { border-color: var(--accent-light); background: var(--accent-bright); box-shadow: 0 0 10px var(--accent-glow); }
+    .welcome-option.selected .radio-dot::after { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #ffffff; }
+    body.theme-black-white .welcome-option.selected .radio-dot::after { background: #050505; }
+    .disguise-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-height: 270px; overflow-y: auto; padding-right: 4px; }
+    .disguise-card { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; background: var(--row-bg); border: 1px solid var(--border-color); padding: 14px 8px; border-radius: 14px; cursor: pointer; text-align: center; transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; }
+    .disguise-card:hover, .disguise-card.selected { background: var(--nav-active); border-color: var(--accent-light); box-shadow: 0 0 16px var(--accent-glow); }
+    .disguise-check { position: absolute; top: 7px; right: 7px; width: 17px; height: 17px; border-radius: 50%; background: var(--accent-bright); color: #ffffff; font-size: 10px; font-weight: 800; display: none; align-items: center; justify-content: center; }
+    body.theme-black-white .disguise-check { color: #050505; }
+    .disguise-card.selected .disguise-check { display: flex; }
+    .disguise-icon-img { width: 32px; height: 32px; border-radius: 8px; object-fit: contain; }
+    .disguise-card-label { font-size: 12px; font-weight: 700; color: #f8fafc; line-height: 1.2; }
+    .setup-field-label { font-size: 12px; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; display: block; }
+    .setup-input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--input-bg); color: #ffffff; font-size: 14px; font-weight: 600; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .setup-input:focus, .setup-input.listening { border-color: var(--accent-light); box-shadow: 0 0 14px var(--accent-glow-strong); }
+    .setup-footer { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+    .setup-btn-sec { padding: 10px 20px; border-radius: 10px; border: 1px solid var(--border-color); background: var(--row-bg); color: #e2e8f0; font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .setup-btn-sec:hover { border-color: var(--accent-light); color: #ffffff; }
+    .setup-btn-pri { padding: 10px 24px; border-radius: 10px; border: 1px solid var(--accent-light); background: var(--accent); color: #ffffff; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 0 14px var(--accent-glow); transition: 0.2s; }
+    body.theme-black-white .setup-btn-pri { color: #050505; }
+    .setup-btn-pri:hover { transform: scale(1.03); box-shadow: 0 0 22px var(--accent-glow-strong); }
+    .done-circle { width: 68px; height: 68px; border-radius: 50%; background: var(--accent); color: #ffffff; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px auto; box-shadow: 0 0 26px var(--accent-glow-strong); }
+    body.theme-black-white .done-circle { color: #050505; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="9" height="12" rx="2.5" fill="#ffffff"/><rect x="11" y="4" width="9" height="12" rx="2.5" fill="#ffffff" fill-opacity="0.65"/></svg></div>
+        <span class="brand-name">Locked</span>
+      </div>
+      <input type="text" class="sidebar-search" placeholder="Search games..." onkeydown="if(event.key==='Enter') location.href='games.html?q='+this.value">
+      <div class="nav-links">
+        <a href="index.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</a>
+        <a href="search.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Web Search</a>
+        <a href="games.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Games</a>
+        <a href="ai.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S9.83 13 9 13s-1.5-.67-1.5-1.5zM16 17H8v-2h8v2zm-.5-4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>AI Helper</a>
+        <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>About</a>
+      </div>
+    </div>
+    <div class="sidebar-bottom" style="display:flex; flex-direction:column; gap:8px;">
+      <a href="account.html" class="nav-item" id="sidebar-account-link"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="sidebar-account-text">Sign In</span></a>
+      <a href="settings.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</a>
+    </div>
+  </div>
+  <div class="welcome-overlay" id="welcome-popup">
+    <div class="welcome-modal">
+      <div class="setup-step active" id="step-0">
+        <div class="welcome-title">Welcome to <span class="brand-name">Locked</span></div>
+        <div class="welcome-sub">Already have an account? Log in to sync your stuff. New here? Let's get you set up.</div>
+        <div class="welcome-rows">
+          <button type="button" class="welcome-option" onclick="goCreateAccount()">
+            <div class="option-info"><span class="welcome-option-title">Create Account</span><span class="welcome-option-desc">Sign up or log in to sync settings across devices.</span></div>
+          </button>
+          <button type="button" class="welcome-option" onclick="showSetupStep(1)">
+            <div class="option-info"><span class="welcome-option-title">New Setup</span><span class="welcome-option-desc">Pick a tab disguise, URL cloak, and panic key.</span></div>
+          </button>
+        </div>
+      </div>
+
+      <div class="setup-step" id="step-1">
+        <div class="welcome-title">Pick your disguise</div>
+        <div class="welcome-sub">Choose what this tab looks like in your browser bar.</div>
+        <div class="disguise-grid" id="wiz-disguise-grid"></div>
+        <div id="wiz-custom-wrap" style="display:none; margin-top:12px; flex-direction:column; gap:8px;">
+          <input type="text" id="wiz-custom-title" class="setup-input" placeholder="Custom tab title (e.g. Google Docs)" oninput="previewWizardCustom()">
+          <input type="text" id="wiz-custom-icon" class="setup-input" placeholder="Favicon image URL or website (e.g. quizlet.com)" oninput="previewWizardCustom()">
+        </div>
+        <div class="setup-footer">
+          <button type="button" class="setup-btn-sec" onclick="showSetupStep(0)">Back</button>
+          <button type="button" class="setup-btn-pri" onclick="showSetupStep(2)">Next</button>
+        </div>
+      </div>
+
+      <div class="setup-step" id="step-2">
+        <div class="welcome-title">Hide your screen?</div>
+        <div class="welcome-sub">Opens Locked inside a blank tab. History stays clean.</div>
+        <div class="welcome-rows">
+          <button type="button" class="welcome-option selected" id="wiz-url-blank" onclick="selectWizardUrl('about:blank')">
+            <div class="option-info"><span class="welcome-option-title">Yes, hide it <span class="rec-badge">recommended</span></span><span class="welcome-option-desc">Opens in an about:blank tab so it stays hidden.</span></div>
+            <span class="radio-dot"></span>
+          </button>
+          <button type="button" class="welcome-option" id="wiz-url-default" onclick="selectWizardUrl('default')">
+            <div class="option-info"><span class="welcome-option-title">No thanks</span><span class="welcome-option-desc">Stay on the regular page.</span></div>
+            <span class="radio-dot"></span>
+          </button>
+        </div>
+        <div class="setup-footer">
+          <button type="button" class="setup-btn-sec" onclick="showSetupStep(1)">Back</button>
+          <button type="button" class="setup-btn-pri" onclick="showSetupStep(3)">Next</button>
+        </div>
+      </div>
+
+      <div class="setup-step" id="step-3">
+        <div class="welcome-title">Set a panic key</div>
+        <div class="welcome-sub">Press a hotkey to instantly switch to a safe page. You can skip this.</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label class="setup-field-label">Hotkey — click the box, press any key</label>
+            <input type="text" id="wiz-panic-key" class="setup-input" readonly style="cursor:pointer; caret-color:transparent;" placeholder="Click here and press a key..." onclick="startWizardPanicRecord()" onblur="stopWizardPanicRecord()">
+          </div>
+          <div>
+            <label class="setup-field-label">Safe URL — where to redirect</label>
+            <input type="text" id="wiz-panic-url" class="setup-input" placeholder="https://google.com">
+          </div>
+        </div>
+        <div class="setup-footer">
+          <button type="button" class="setup-btn-sec" onclick="showSetupStep(2)">Back</button>
+          <button type="button" class="setup-btn-sec" onclick="skipWizardPanic()">Skip</button>
+          <button type="button" class="setup-btn-pri" onclick="showSetupStep(4)">Next</button>
+        </div>
+      </div>
+
+      <div class="setup-step" id="step-4">
+        <div class="welcome-title">Save your stuff?</div>
+        <div class="welcome-sub">We use local storage to remember your settings between visits.</div>
+        <div class="welcome-rows">
+          <button type="button" class="welcome-option selected" id="wiz-save-yes" onclick="selectWizardSave(true)">
+            <div class="option-info"><span class="welcome-option-title">Yes, remember me</span><span class="welcome-option-desc">Settings, disguise, and progress stay saved.</span></div>
+            <span class="radio-dot"></span>
+          </button>
+          <button type="button" class="welcome-option" id="wiz-save-no" onclick="selectWizardSave(false)">
+            <div class="option-info"><span class="welcome-option-title">⚠ No thanks</span><span class="welcome-option-desc">Nothing saves. You'll redo settings every visit.</span></div>
+            <span class="radio-dot"></span>
+          </button>
+        </div>
+        <div class="setup-footer">
+          <button type="button" class="setup-btn-sec" onclick="showSetupStep(3)">Back</button>
+          <button type="button" class="setup-btn-pri" onclick="finishSetupWizard()">Next</button>
+        </div>
+      </div>
+
+      <div class="setup-step" id="step-5" style="text-align:center; padding:10px 0;">
+        <div class="done-circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+        <div class="welcome-title" style="text-align:center;">You're all set!</div>
+        <div class="welcome-sub" style="text-align:center;">Everything is configured. Enjoy <span class="brand-name">Locked</span>.</div>
+        <button type="button" class="setup-btn-pri" style="padding:12px 32px; font-size:15px;" onclick="closeSetupDone()">Let's go!</button>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="home-hero-wrap">
+      <div class="home-hero">
+        <h1 class="hero-headline"><span id="hero-typed">Locked is amazing.</span><span class="hero-cursor"></span></h1>
+        <p class="hero-desc">The next generation of sites. <span class="brand-name">Locked</span> is built for speed and ease of use, with a sleek design, built-in cloaking, and AI tools.</p>
+        <a href="games.html" class="hero-cta">Start Playing</a>
+        <div class="hero-pills">
+          <a href="search.html" class="hero-pill">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            Web Search
+          </a>
+          <a href="games.html" class="hero-pill">
+            <svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            Games
+          </a>
+          <a href="ai.html" class="hero-pill">
+            <svg viewBox="0 0 24 24"><path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S9.83 13 9 13s-1.5-.67-1.5-1.5zM16 17H8v-2h8v2zm-.5-4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            Assistant
+          </a>
+          <a href="about.html" class="hero-pill">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+            About
+          </a>
+          <a href="settings.html" class="hero-pill">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            Settings
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    (function startHeroTyping() {
+      var siteTitle = safeGet('customBrandName') || 'Locked';
+      var phrases = [
+        siteTitle + ' is amazing.',
+        siteTitle + ' is fast.',
+        siteTitle + ' is unblockable.',
+        siteTitle + ' is sleek.'
+      ];
+      var pIdx = 0, cIdx = phrases.length, deleting = false;
+      var el = document.getElementById('hero-typed');
+      function tick() {
+        var current = phrases[pIdx];
+        if (!deleting) {
+          cIdx++;
+          el.innerText = current.slice(0, cIdx);
+          if (cIdx >= current.length) { deleting = true; setTimeout(tick, 2200); return; }
+          setTimeout(tick, 65);
+        } else {
+          cIdx--;
+          el.innerText = current.slice(0, cIdx);
+          if (cIdx <= siteTitle.length + 4) { deleting = false; pIdx = (pIdx + 1) % phrases.length; setTimeout(tick, 260); return; }
+          setTimeout(tick, 38);
+        }
+      }
+      setTimeout(function() { deleting = true; tick(); }, 2400);
+    })();
+
+    var wizState = { disguise: 'none', customTitle: '', customIconRaw: '', urlMode: 'about:blank', panicKey: '', panicUrl: 'https://google.com', remember: true };
+
+    (function buildWizardDisguises() {
+      var grid = document.getElementById('wiz-disguise-grid');
+      Object.keys(TAB_DISGUISES).forEach(function(key) {
+        var item = TAB_DISGUISES[key];
+        var card = document.createElement('div');
+        card.className = 'disguise-card' + (key === 'none' ? ' selected' : '');
+        card.id = 'wiz-dis-' + key;
+        card.onclick = function() { selectWizardDisguise(key); };
+        var chk = document.createElement('span');
+        chk.className = 'disguise-check';
+        chk.innerText = '✓';
+        var img = document.createElement('img');
+        img.className = 'disguise-icon-img';
+        img.src = getDisguiseIcon(key);
+        img.alt = item.label;
+        var lbl = document.createElement('span');
+        lbl.className = 'disguise-card-label';
+        lbl.innerText = (key === 'none') ? 'Locked' : item.label;
+        card.appendChild(chk);
+        card.appendChild(img);
+        card.appendChild(lbl);
+        grid.appendChild(card);
+      });
+    })();
+
+    if (safeGet('lockedWelcomeSeen') !== 'true' && sessionStorage.getItem('lockedSessionDone') !== 'true') {
+      document.getElementById('welcome-popup').style.display = 'flex';
+    }
+
+    function showSetupStep(n) {
+      document.querySelectorAll('.setup-step').forEach(function(el) { el.classList.remove('active'); });
+      document.getElementById('step-' + n).classList.add('active');
+    }
+
+    function goCreateAccount() {
+      try { localStorage.setItem('lockedWelcomeSeen', 'true'); } catch (e) {}
+      location.href = 'account.html';
+    }
+
+    function selectWizardDisguise(val) {
+      wizState.disguise = val;
+      Object.keys(TAB_DISGUISES).forEach(function(k) { document.getElementById('wiz-dis-' + k).classList.toggle('selected', k === val); });
+      var wrap = document.getElementById('wiz-custom-wrap');
+      wrap.style.display = (val === 'custom') ? 'flex' : 'none';
+      if (val === 'custom') { previewWizardCustom(); }
+      else if (val !== 'none') { document.title = TAB_DISGUISES[val].title; setPageFavicon(getDisguiseIcon(val)); }
+      else { document.title = 'Locked'; setPageFavicon(makeLockedPNG()); }
+    }
+
+    function previewWizardCustom() {
+      wizState.customTitle = document.getElementById('wiz-custom-title').value;
+      wizState.customIconRaw = document.getElementById('wiz-custom-icon').value;
+      if (wizState.disguise !== 'custom') return;
+      document.title = wizState.customTitle.trim() || 'Locked';
+      setPageFavicon(resolveFaviconInput(wizState.customIconRaw) || makeLockedPNG());
+    }
+
+    function selectWizardUrl(mode) {
+      wizState.urlMode = mode;
+      document.getElementById('wiz-url-blank').classList.toggle('selected', mode === 'about:blank');
+      document.getElementById('wiz-url-default').classList.toggle('selected', mode === 'default');
+    }
+
+    function formatWizKey(k) { if (!k) return ''; return k === ' ' ? 'Space' : (k.length === 1 ? k.toUpperCase() : k); }
+    function startWizardPanicRecord() { window._recordingPanicKey = true; var box = document.getElementById('wiz-panic-key'); box.classList.add('listening'); box.value = 'Press any key...'; }
+    function stopWizardPanicRecord() { window._recordingPanicKey = false; var box = document.getElementById('wiz-panic-key'); box.classList.remove('listening'); box.value = formatWizKey(wizState.panicKey); }
+    document.getElementById('wiz-panic-key').addEventListener('keydown', function(e) {
+      if (!window._recordingPanicKey) return;
+      e.preventDefault(); e.stopPropagation();
+      wizState.panicKey = e.key;
+      this.value = formatWizKey(e.key);
+      window._recordingPanicKey = false;
+      this.classList.remove('listening');
+      this.blur();
+    });
+    function skipWizardPanic() { wizState.panicKey = ''; document.getElementById('wiz-panic-key').value = ''; showSetupStep(4); }
+    function selectWizardSave(remember) { wizState.remember = remember; document.getElementById('wiz-save-yes').classList.toggle('selected', remember); document.getElementById('wiz-save-no').classList.toggle('selected', !remember); }
+
+    function finishSetupWizard() {
+      var typedUrl = document.getElementById('wiz-panic-url').value.trim();
+      wizState.panicUrl = typedUrl || 'https://google.com';
+      var store = wizState.remember ? localStorage : sessionStorage;
+      try {
+        if (!wizState.remember) { sessionStorage.setItem('lockedNoSave', 'true'); sessionStorage.setItem('lockedSessionDone', 'true'); }
+        else { sessionStorage.removeItem('lockedNoSave'); localStorage.setItem('lockedWelcomeSeen', 'true'); }
+        store.setItem('tabDisguise', wizState.disguise);
+        if (wizState.disguise === 'custom') {
+          var resolvedIcon = resolveFaviconInput(wizState.customIconRaw);
+          store.setItem('customTabTitle', wizState.customTitle);
+          store.setItem('customTabIconRaw', wizState.customIconRaw);
+          store.setItem('customTabIcon', resolvedIcon);
+          if (wizState.customTitle.trim()) store.setItem('siteTitle', wizState.customTitle.trim()); else store.removeItem('siteTitle');
+          if (resolvedIcon) store.setItem('siteIcon', resolvedIcon); else store.removeItem('siteIcon');
+        } else if (wizState.disguise !== 'none') {
+          store.setItem('siteTitle', TAB_DISGUISES[wizState.disguise].title);
+          store.setItem('siteIcon', getDisguiseIcon(wizState.disguise));
+        } else { store.removeItem('siteTitle'); store.removeItem('siteIcon'); }
+        store.setItem('urlDisguise', wizState.urlMode);
+        store.setItem('autoBlank', (wizState.urlMode === 'about:blank') ? 'true' : 'false');
+        if (wizState.panicKey) { store.setItem('panicKey', wizState.panicKey); store.setItem('panicUrl', wizState.panicUrl); }
+        else { store.removeItem('panicKey'); }
+      } catch (e) {}
+      applyTheme();
+      if (wizState.remember && window.saveSettingsToCloud) window.saveSettingsToCloud();
+      showSetupStep(5);
+    }
+
+    function closeSetupDone() {
+      document.getElementById('welcome-popup').style.display = 'none';
+      if (wizState.urlMode === 'about:blank' && window.self === window.top) {
+        if (!launchAboutBlank()) alert('Pop-up blocked! Allow pop-ups in your address bar to open in about:blank.');
+      }
+    }
+  </script>
+</body>
+</html>

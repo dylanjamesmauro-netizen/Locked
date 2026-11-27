@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Locked</title>
+  <link id="favicon" rel="shortcut icon" type="image/png" href="">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .ai-container {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px 28px 16px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .ai-top-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    .ai-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--row-bg);
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ai-pill-btn:hover {
+      border-color: var(--accent-light);
+      background: var(--nav-active);
+      color: #ffffff;
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+    .ai-mode-wrap { position: relative; }
+    .ai-mode-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 165px;
+      background: var(--menu-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), 0 0 16px var(--accent-glow);
+      z-index: 50;
+    }
+    .ai-mode-wrap.open .ai-mode-menu { display: block; }
+    .ai-mode-opt {
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+    .ai-mode-opt:hover, .ai-mode-opt.active {
+      background: var(--nav-active);
+      color: #ffffff;
+    }
+    .ai-empty-center {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+    }
+    .ai-hero-text {
+      font-size: clamp(28px, 3.2vw, 40px);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 14px var(--accent-glow));
+    }
+    .ai-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.92em;
+      margin-left: 4px;
+      vertical-align: -0.1em;
+      background: var(--accent-light);
+      -webkit-text-fill-color: initial;
+      animation: aiBlink 0.9s steps(1) infinite;
+    }
+    @keyframes aiBlink { 50% { opacity: 0; } }
+    .chat-box {
+      display: none;
+      flex: 1;
+      width: 100%;
+      max-width: 860px;
+      margin: 16px auto;
+      overflow-y: auto;
+      flex-direction: column;
+      gap: 14px;
+      padding-right: 6px;
+    }
+    .msg {
+      padding: 13px 18px;
+      border-radius: 16px;
+      max-width: 78%;
+      font-size: 15px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .msg.user {
+      background: var(--accent);
+      border: 1px solid var(--accent-light);
+      color: #ffffff;
+      align-self: flex-end;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    body.theme-black-white .msg.user { color: #050505; }
+    .msg.bot {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: #f8fafc;
+      align-self: flex-start;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    .ai-bottom-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .chat-input-pill {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px 8px 20px;
+      border-radius: 999px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 0 22px var(--accent-glow);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .chat-input-pill:focus-within {
+      border-color: var(--accent-light);
+      box-shadow: 0 0 28px var(--accent-glow-strong);
+    }
+    .chat-input-pill input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 0;
+    }
+    .chat-input-pill input::placeholder { color: #94a3b8; }
+    .ai-send-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent-light);
+      color: #0b0618;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px var(--accent-glow);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .ai-send-circle:hover {
+      transform: scale(1.07);
+      background: var(--accent-bright);
+      color: #ffffff;
+    }
+    body.theme-black-white .ai-send-circle:hover { color: #050505; }
+    .ai-footer-note {
+      text-align: right;
+      font-size: 11px;
+      color: #64748b;
+      padding-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="9" height="12" rx="2.5" fill="#ffffff"/><rect x="11" y="4" width="9" height="12" rx="2.5" fill="#ffffff" fill-opacity="0.65"/></svg></div>
+        <span class="brand-name">Locked</span>
+      </div>
+      <input type="text" class="sidebar-search" placeholder="Search games..." onkeydown="if(event.key==='Enter') location.href='games.html?q='+this.value">
+      <div class="nav-links">
+        <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</a>
+        <a href="search.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Web Search</a>
+        <a href="games.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Games</a>
+        <a href="ai.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S9.83 13 9 13s-1.5-.67-1.5-1.5zM16 17H8v-2h8v2zm-.5-4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>AI Helper</a>
+        <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>About</a>
+      </div>
+    </div>
+    <div class="sidebar-bottom" style="display:flex; flex-direction:column; gap:8px;">
+      <a href="account.html" class="nav-item" id="sidebar-account-link"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="sidebar-account-text">Sign In</span></a>
+      <a href="settings.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</a>
+    </div>
+  </div>
+  <div class="ai-container">
+    <div class="ai-top-bar">
+      <div class="ai-mode-wrap" id="ai-mode-wrap">
+        <button type="button" class="ai-pill-btn" onclick="toggleAiModeMenu(event)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          <span id="ai-mode-label">General</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div class="ai-mode-menu">
+          <div class="ai-mode-opt active" onclick="pickAiMode('General', this)">General</div>
+          <div class="ai-mode-opt" onclick="pickAiMode('Study & Math', this)">Study &amp; Math</div>
+          <div class="ai-mode-opt" onclick="pickAiMode('Coding', this)">Coding</div>
+        </div>
+      </div>
+
+      <button type="button" class="ai-pill-btn" onclick="resetAiChat()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
+        Reset
+      </button>
+    </div>
+
+    <div class="ai-empty-center" id="ai-empty-center">
+      <div class="ai-hero-text">LOCKEDGPT<span class="ai-cursor"></span></div>
+    </div>
+
+    <div class="chat-box" id="chat-box"></div>
+
+    <div class="ai-bottom-wrap">
+      <form class="chat-input-pill" onsubmit="event.preventDefault(); sendAiMessage();">
+        <input type="text" id="ai-input" placeholder="Message AI..." autocomplete="off">
+        <button type="submit" class="ai-send-circle" title="Send">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+        </button>
+      </form>
+      <div class="ai-footer-note">Powered by LockedGPT</div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    var currentAiMode = 'General';
+
+    function toggleAiModeMenu(e) {
+      e.stopPropagation();
+      document.getElementById('ai-mode-wrap').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function() {
+      var w = document.getElementById('ai-mode-wrap');
+      if (w) w.classList.remove('open');
+    });
+
+    function pickAiMode(mode, el) {
+      currentAiMode = mode;
+      document.getElementById('ai-mode-label').innerText = mode;
+      document.querySelectorAll('.ai-mode-opt').forEach(function(opt) { opt.classList.remove('active'); });
+      if (el) el.classList.add('active');
+      document.getElementById('ai-mode-wrap').classList.remove('open');
+    }
+
+    function resetAiChat() {
+      var box = document.getElementById('chat-box');
+      box.innerHTML = '';
+      box.style.display = 'none';
+      document.getElementById('ai-empty-center').style.display = 'flex';
+      document.getElementById('ai-input').value = '';
+    }
+
+    function appendMessage(text, who) {
+      document.getElementById('ai-empty-center').style.display = 'none';
+      var box = document.getElementById('chat-box');
+      box.style.display = 'flex';
+      var div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.innerText = text;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+      return div;
+    }
+
+    function tryLocalMath(text) {
+      var cleaned = text.toLowerCase()
+        .replace(/what is|solve|calculate|equals|\?/g, '')
+        .replace(/x/g, '*')
+        .replace(/\^/g, '**')
+        .trim();
+      if (!cleaned || !/^[0-9+\-*/().\s*]+$/.test(cleaned) || !/[0-9]/.test(cleaned)) return null;
+      try {
+        var val = Function('"use strict"; return (' + cleaned + ')')();
+        if (typeof val === 'number' && isFinite(val)) return 'Answer: ' + val;
+      } catch (e) {}
+      return null;
+    }
+
+    async function tryWikipediaAnswer(text) {
+      var topic = text.replace(/^(who is|who was|what is|what are|define|explain|tell me about)\s+/i, '').replace(/\?+$/, '').trim();
+      if (!topic) return null;
+      try {
+        var res = await fetch('https://wikipedia.org' + encodeURIComponent(topic));
+        if (res.ok) {
+          var data = await res.json();
+          if (data && data.extract) return data.extract;
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    async function tryPollinations(text) {
+      try {
+        var sys = 'You are LockedGPT (' + currentAiMode + ' mode), a helpful, concise assistant.';
+        var res = await fetch('https://pollinations.ai' + encodeURIComponent(text) + '?system=' + encodeURIComponent(sys));
+        if (res.ok) {
+          var t = await res.text();
+          if (t && t.trim()) return t.trim();
+        }
+      } catch (e) {}
+      return null;
+    }
+
+    async function sendAiMessage() {
+      var input = document.getElementById('ai-input');
+      var text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      appendMessage(text, 'user');
+
+      var thinking = appendMessage('Thinking...', 'bot');
+
+      var mathReply = tryLocalMath(text);
+      if (mathReply) {
+        thinking.innerText = mathReply;
+        return;
+      }
+
+      var aiReply = await tryPollinations(text);
+      if (aiReply) {
+        thinking.innerText = aiReply;
+        return;
+      }
+
+      var wikiReply = await tryWikipediaAnswer(text);
+      if (wikiReply) {
+        thinking.innerText = wikiReply;
+        return;
+      }
+
+      if (/^(hi|hello|hey|sup|yo)\b/i.test(text)) {
+        thinking.innerText = 'Hey! Your network blocked external AI servers, but I can still solve math equations (like "24 * 17" or "(8 + 4)^2") and look up Wikipedia summaries (like "What is photosynthesis?").';
+      } else {
+        thinking.innerText = 'Your school network blocked the external AI server. Try asking a math expression (e.g. "125 / 5") or a topic lookup (e.g. "What is mitochondria?").';
+      }
+    }
+  </script>
+</body>
+</html>
