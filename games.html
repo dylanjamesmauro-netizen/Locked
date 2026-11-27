@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Locked</title>
+  <link id="favicon" rel="shortcut icon" type="image/png" href="">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .games-page {
+      width: 100%; max-width: 1220px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    .games-search-input {
+      width: 100%; padding: 13px 18px; border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg); color: #fff; font-size: 14px;
+    }
+    .cat-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cat-pill {
+      padding: 7px 14px; border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--row-bg); color: #94a3b8;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .cat-pill.active {
+      background: var(--accent); color: #fff;
+    }
+    .row-box {
+      padding: 16px; border-radius: 18px;
+      background: rgba(15, 12, 32, 0.72);
+      border: 1px solid var(--border-color);
+    }
+    .row-head {
+      display: flex; justify-content: space-between;
+      align-items: center; margin-bottom: 12px;
+    }
+    .section-heading {
+      font-size: 20px; font-weight: 800; color: #f8fafc;
+    }
+    .row-arrows { display: flex; gap: 6px; }
+    .arrow-btn {
+      width: 28px; height: 28px; border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg); color: #cbd5e1;
+      font-weight: 800; cursor: pointer;
+    }
+    .h-scroll {
+      display: flex; gap: 14px; overflow-x: auto;
+      scroll-behavior: smooth; padding-bottom: 4px;
+    }
+    .games-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;
+    }
+    .game-card {
+      position: relative; aspect-ratio: 16 / 10; border-radius: 16px;
+      overflow: hidden; border: 2px solid var(--border-color);
+      cursor: pointer; display: flex; flex-shrink: 0;
+      align-items: center; justify-content: center;
+      box-shadow: 0 0 18px var(--accent-glow); transition: 0.2s;
+    }
+    .game-card:hover {
+      transform: translateY(-3px) scale(1.02);
+      border-color: var(--accent-light);
+    }
+    .pop-card { width: 320px; }
+    .rec-card { width: 170px; aspect-ratio: 1 / 1; }
+    .game-art { text-align: center; pointer-events: none; }
+    .game-emoji { font-size: 46px; }
+    .game-art-label {
+      font-size: 16px; font-weight: 900; color: #fff;
+    }
+    .game-top-overlay {
+      position: absolute; top: 10px; left: 10px; right: 10px;
+      display: flex; justify-content: space-between; z-index: 3;
+    }
+    .game-tag-pill {
+      padding: 3px 8px; border-radius: 999px; margin-right: 4px;
+      background: rgba(10, 8, 22, 0.78);
+      color: #f8fafc; font-size: 10px; font-weight: 700;
+    }
+    .game-fav-btn {
+      width: 28px; height: 28px; border-radius: 8px; border: none;
+      background: var(--accent); color: #fff; cursor: pointer;
+    }
+    .game-bottom-overlay {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 20px 12px 10px;
+      background: linear-gradient(transparent, rgba(5, 4, 12, 0.94));
+      display: flex; justify-content: space-between;
+    }
+    .game-card-title { font-size: 14px; font-weight: 800; color: #fff; }
+    .game-views-pill { font-size: 11px; color: #cbd5e1; }
+    .player-view {
+      display: none; width: 100%; max-width: 1060px;
+      flex-direction: column; align-items: center; gap: 14px;
+      margin: 0 auto;
+    }
+    .player-stage {
+      position: relative; width: 100%; height: 78vh;
+      border-radius: 20px; overflow: hidden;
+      border: 1px solid var(--border-color); background: #070510;
+    }
+    .player-stage:fullscreen {
+      width: 100vw; height: 100vh; border-radius: 0; border: none;
+    }
+    .game-iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      border: none;
+    }
+    .player-bar {
+      width: 100%; display: flex; justify-content: space-between;
+      align-items: center; padding: 12px 18px; border-radius: 16px;
+      background: var(--card-bg); border: 1px solid var(--border-color);
+    }
+    .p-icon-btn {
+      background: none; border: none; color: #cbd5e1;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .p-fullscreen-btn {
+      width: 36px; height: 36px; border-radius: 10px; border: none;
+      background: var(--accent-bright); color: #fff; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="9" height="12" rx="2.5" fill="#ffffff"/><rect x="11" y="4" width="9" height="12" rx="2.5" fill="#ffffff" fill-opacity="0.65"/></svg></div>
+        <span class="brand-name">Locked</span>
+      </div>
+      <input type="text" class="sidebar-search" placeholder="Search games..." onkeydown="if(event.key==='Enter') location.href='games.html?q='+this.value">
+      <div class="nav-links">
+        <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</a>
+        <a href="search.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Web Search</a>
+        <a href="games.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Games</a>
+        <a href="ai.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S9.83 13 9 13s-1.5-.67-1.5-1.5zM16 17H8v-2h8v2zm-.5-4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>AI Helper</a>
+        <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>About</a>
+      </div>
+    </div>
+    <div class="sidebar-bottom" style="display:flex; flex-direction:column; gap:8px;">
+      <a href="account.html" class="nav-item" id="sidebar-account-link"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="sidebar-account-text">Sign In</span></a>
+      <a href="settings.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</a>
+    </div>
+  </div>
+  <div class="content" style="padding: 24px 32px;">
+    <div class="games-page" id="games-browse-view">
+      <input type="text" id="games-search" class="games-search-input"
+        placeholder="Search Games Here..." oninput="renderAll()">
+      <div class="cat-pills" id="cat-pills"></div>
+      <div class="row-box" id="recent-box" style="display:none;">
+        <div class="row-head">
+          <div class="section-heading">Recently Played</div>
+          <div class="row-arrows">
+            <button class="arrow-btn"
+              onclick="scrollRow('recent-row',-360)">‹</button>
+            <button class="arrow-btn"
+              onclick="scrollRow('recent-row',360)">›</button>
+          </div>
+        </div>
+        <div class="h-scroll" id="recent-row"></div>
+      </div>
+      <div>
+        <div class="row-head">
+          <div class="section-heading">Most Popular</div>
+          <div class="row-arrows">
+            <button class="arrow-btn"
+              onclick="scrollRow('pop-row',-360)">‹</button>
+            <button class="arrow-btn"
+              onclick="scrollRow('pop-row',360)">›</button>
+          </div>
+        </div>
+        <div class="h-scroll" id="pop-row"></div>
+      </div>
+      <div>
+        <div class="section-heading" id="games-heading"
+          style="margin-bottom:12px;">All Games</div>
+        <div class="games-grid" id="games-grid"></div>
+      </div>
+    </div>
+    <div class="player-view" id="player-view">
+      <div class="player-stage" id="player-stage">
+        <iframe id="game-iframe" class="game-iframe" allowfullscreen></iframe>
+      </div>
+      <div class="player-bar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="p-icon-btn"
+            onclick="closeGamePlayer()">← Back</button>
+          <span id="p-title"
+            style="font-weight:800;color:#fff;">Game</span>
+          <button class="p-icon-btn" id="p-fav-btn"
+            onclick="togglePlayerFav()">☆</button>
+          <span id="p-views"
+            style="font-size:13px;color:#94a3b8;">👁 1.3m</span>
+          <button class="p-icon-btn"
+            onclick="bumpStat('likes')">👍 <span id="p-likes">4820</span></button>
+          <button class="p-icon-btn"
+            onclick="bumpStat('dislikes')">👎 <span id="p-dislikes">173</span></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="p-icon-btn" onclick="nextMirror()"
+            style="background:var(--row-bg);padding:6px 12px;border-radius:10px;border:1px solid var(--border-color);">
+            🔄 Switch Source
+          </button>
+          <button class="p-fullscreen-btn"
+            onclick="toggleGameFullscreen()">⛶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    var REAL_URLS = {
+      'drive-mad': [
+        'https://github.io',
+        'https://gitlab.io',
+        'https://github.io'
+      ],
+      'retro-bowl': [
+        'https://github.io',
+        'https://konggames.com',
+        'https://gitlab.io'
+      ],
+      'escape-road-2': [
+        'https://github.io',
+        'https://gitlab.io'
+      ],
+      'geometry-dash': [
+        'https://github.io',
+        'https://gitlab.io'
+      ],
+      'slope': [
+        'https://github.io',
+        'https://kdata1.com',
+        'https://gitlab.io'
+      ],
+      'stickman-hook': [
+        'https://github.io',
+        'https://gitlab.io'
+      ]
+    };
+    var mirrorIdx = 0;
+    function makeDoc(body, code) {
+      var st = 'margin:0;padding:0;background:#05070e;color:#fff;' +
+        'font-family:system-ui,sans-serif;width:100vw;height:100vh;' +
+        'overflow:hidden;display:flex;align-items:center;justify-content:center;';
+      var css = '<style>canvas{position:fixed;inset:0;width:100vw!important;height:100vh!important;}' +
+        'body>div:first-child{position:fixed;top:14px;left:18px;z-index:10;' +
+        'background:rgba(10,14,28,0.82);padding:8px 16px;border-radius:12px;font-weight:800;}</style>';
+      return '<!DOCTYPE html><html><head>' + css + '</head><body style="' + st + '">' +
+        body + '<' + 'script>' + code + '<' + '/script></body></html>';
+    }
+    var GAMES = [];
+  </script>
+  <script>
+    GAMES.push(
+      { id: 'drive-mad', title: 'Drive Mad', tags: ['Action', 'Single Player'],
+        views: '1.3m', likes: 4820, dislikes: 173, emoji: '🚙',
+        bg: 'linear-gradient(135deg,#0284c7,#1d4ed8)',
+        html: makeDoc('<div>🚙 Drive Mad (Offline Backup) | D/Right Gas • A/Left Tilt</div>' +
+          '<canvas id="c" width="680" height="360"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),x=80,vx=0,ang=0,k={};' +
+          'document.onkeydown=function(e){k[e.key.toLowerCase()]=1;};document.onkeyup=function(e){k[e.key.toLowerCase()]=0;};' +
+          'setInterval(function(){if(k.arrowright||k.d){vx=Math.min(8,vx+0.35);ang-=0.02;}' +
+          'if(k.arrowleft||k.a){vx=Math.max(-4,vx-0.35);ang+=0.02;}vx*=0.97;ang*=0.92;x+=vx;' +
+          'ctx.fillStyle="#38bdf8";ctx.fillRect(0,0,680,360);ctx.fillStyle="#16a34a";ctx.fillRect(0,260,680,100);' +
+          'ctx.save();ctx.translate(180,236);ctx.rotate(ang);ctx.fillStyle="#facc15";ctx.fillRect(-32,-18,64,22);ctx.restore();},16);') },
+      { id: 'retro-bowl', title: 'Retro Bowl', tags: ['Sports', 'Single Player'],
+        views: '1.1m', likes: 3910, dislikes: 92, emoji: '🏈',
+        bg: 'linear-gradient(135deg,#15803d,#14532d)',
+        html: makeDoc('<div>🏈 Retro Bowl (Offline Backup) | TDs: <span id="td">0</span></div>' +
+          '<canvas id="c" width="680" height="360"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),py=180,b=null,td=0;' +
+          'c.onmousemove=function(e){py=e.clientY;};c.onclick=function(){if(!b)b={x:90,y:py};};' +
+          'setInterval(function(){ctx.fillStyle="#15803d";ctx.fillRect(0,0,680,360);ctx.fillStyle="#ca8a04";ctx.fillRect(610,0,70,360);' +
+          'ctx.fillStyle="#38bdf8";ctx.fillRect(70,py-12,24,24);if(b){b.x+=11;ctx.fillStyle="#fff";ctx.fillRect(b.x,b.y-4,12,8);' +
+          'if(b.x>615){td++;document.getElementById("td").innerText=td;b=null;}}},16);') },
+      { id: 'escape-road-2', title: 'Escape Road 2', tags: ['Action', 'Casual'],
+        views: '975.7k', likes: 3140, dislikes: 84, emoji: '🚓',
+        bg: 'linear-gradient(135deg,#475569,#0f172a)',
+        html: makeDoc('<div>🚓 Escape Road 2 (Offline Backup) | Left/Right</div>' +
+          '<canvas id="c" width="640" height="360"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),px=320,k={};' +
+          'document.onkeydown=function(e){k[e.key]=1;};document.onkeyup=function(e){k[e.key]=0;};' +
+          'setInterval(function(){if(k.ArrowLeft)px-=6;if(k.ArrowRight)px+=6;ctx.fillStyle="#0f172a";ctx.fillRect(0,0,640,360);' +
+          'ctx.fillStyle="#facc15";ctx.fillRect(px-16,260,32,54);},16);') },
+      { id: 'geometry-dash', title: 'Geometry Dash', tags: ['Action', 'Arcade'],
+        views: '890.4k', likes: 4180, dislikes: 72, emoji: '🟨',
+        bg: 'linear-gradient(135deg,#6d28d9,#1e1b4b)',
+        html: makeDoc('<div>⚡ Geometry Dash (Offline Backup) | Click / Space</div>' +
+          '<canvas id="c" width="640" height="340"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),y=240,vy=0;' +
+          'function j(){if(y>=240)vy=-12;}c.onclick=j;document.onkeydown=function(e){if(e.code==="Space")j();};' +
+          'setInterval(function(){vy+=0.7;y+=vy;if(y>240){y=240;vy=0;}ctx.fillStyle="#1e1b4b";ctx.fillRect(0,0,640,340);' +
+          'ctx.fillStyle="#facc15";ctx.fillRect(100,y,30,30);},16);') },
+      { id: 'slope', title: 'Slope', tags: ['Action', 'Arcade'],
+        views: '760.2k', likes: 3890, dislikes: 65, emoji: '🟢',
+        bg: 'linear-gradient(135deg,#16a34a,#064e3b)',
+        html: makeDoc('<div>🟢 Slope (Offline Backup) | Left/Right</div>' +
+          '<canvas id="c" width="600" height="360"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),bx=300,k={};' +
+          'document.onkeydown=function(e){k[e.key]=1;};document.onkeyup=function(e){k[e.key]=0;};' +
+          'setInterval(function(){if(k.ArrowLeft)bx-=6;if(k.ArrowRight)bx+=6;ctx.fillStyle="#030712";ctx.fillRect(0,0,600,360);' +
+          'ctx.fillStyle="#22c55e";ctx.beginPath();ctx.arc(bx,300,15,0,6.28);ctx.fill();},16);') },
+      { id: 'stickman-hook', title: 'Stickman Hook', tags: ['Action', 'Casual'],
+        views: '640.8k', likes: 2740, dislikes: 39, emoji: '🪝',
+        bg: 'linear-gradient(135deg,#e11d48,#4c0519)',
+        html: makeDoc('<div>🪝 Stickman Hook (Offline Backup) | Click / Space</div>' +
+          '<canvas id="c" width="600" height="340"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),py=150,vy=0;' +
+          'c.onmousedown=function(){vy=-8;};setInterval(function(){vy+=0.35;py+=vy;if(py>300){py=300;vy=-10;}' +
+          'ctx.fillStyle="#1e1b4b";ctx.fillRect(0,0,600,340);ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(160,py,11,0,6.28);ctx.fill();},16);') }
+    );
+  </script>
+  <script>
+    var activeCat = 'All', activeGame = null;
+    function getList(k) { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } }
+    function saveList(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    function isFav(id) { return getList('lockedFavGames').indexOf(id) !== -1; }
+    function toggleFav(id, e) {
+      if (e) e.stopPropagation();
+      var f = getList('lockedFavGames'), i = f.indexOf(id);
+      if (i === -1) f.push(id); else f.splice(i, 1);
+      saveList('lockedFavGames', f); renderAll();
+      if (activeGame && activeGame.id === id) document.getElementById('p-fav-btn').innerText = isFav(id) ? '★' : '☆';
+    }
+    function buildCard(g, cls) {
+      var card = document.createElement('div');
+      card.className = 'game-card ' + (cls || ''); card.style.background = g.bg;
+      card.onclick = function() { openGamePlayer(g.id); };
+      card.innerHTML = '<div class="game-top-overlay"><div>' +
+        g.tags.map(function(t) { return '<span class="game-tag-pill">' + t + '</span>'; }).join('') +
+        '</div><button class="game-fav-btn" onclick="toggleFav(\'' + g.id + '\',event)">' +
+        (isFav(g.id) ? '★' : '☆') + '</button></div><div class="game-art"><div class="game-emoji">' +
+        g.emoji + '</div><div class="game-art-label">' + g.title.toUpperCase() + '</div></div>' +
+        '<div class="game-bottom-overlay"><div class="game-card-title">' + g.title +
+        '</div><div class="game-views-pill">👁 ' + g.views + '</div></div>';
+      return card;
+    }
+    function renderPills() {
+      var box = document.getElementById('cat-pills'); box.innerHTML = '';
+      ['All', 'Favorites', 'Single Player', 'Arcade', 'Casual', 'Action', 'Sports'].forEach(function(cat) {
+        var cnt = cat === 'All' ? GAMES.length : cat === 'Favorites' ? getList('lockedFavGames').length :
+          GAMES.filter(function(g) { return g.tags.indexOf(cat) !== -1; }).length;
+        var btn = document.createElement('button');
+        btn.className = 'cat-pill' + (cat === activeCat ? ' active' : '');
+        btn.innerText = cat + ' ' + cnt;
+        btn.onclick = function() { activeCat = cat; renderAll(); };
+        box.appendChild(btn);
+      });
+    }
+    function renderAll() {
+      renderPills();
+      var recIds = getList('lockedRecentGames'), recBox = document.getElementById('recent-box'), recRow = document.getElementById('recent-row');
+      recRow.innerHTML = '';
+      var recGames = recIds.map(function(id) { return GAMES.find(function(g) { return g.id === id; }); }).filter(Boolean);
+      recBox.style.display = recGames.length ? 'block' : 'none';
+      recGames.forEach(function(g) { recRow.appendChild(buildCard(g, 'rec-card')); });
+      var popRow = document.getElementById('pop-row'); popRow.innerHTML = '';
+      GAMES.slice(0, 5).forEach(function(g) { popRow.appendChild(buildCard(g, 'pop-card')); });
+      var grid = document.getElementById('games-grid'), q = (document.getElementById('games-search').value || '').toLowerCase();
+      document.getElementById('games-heading').innerText = activeCat === 'All' ? 'All Games' : activeCat;
+      grid.innerHTML = '';
+      GAMES.filter(function(g) {
+        return (!q || g.title.toLowerCase().indexOf(q) !== -1) &&
+          (activeCat === 'All' || (activeCat === 'Favorites' ? isFav(g.id) : g.tags.indexOf(activeCat) !== -1));
+      }).forEach(function(g) { grid.appendChild(buildCard(g, '')); });
+    }
+    function scrollRow(id, dx) { document.getElementById(id).scrollLeft += dx; }
+    function loadRealOrBackup(g) {
+      var frame = document.getElementById('game-iframe');
+      var list = REAL_URLS[g.id] || [];
+      frame.removeAttribute('srcdoc'); frame.removeAttribute('src');
+      if (list.length > 0 && mirrorIdx < list.length) frame.src = list[mirrorIdx];
+      else frame.srcdoc = g.html;
+    }
+    function nextMirror() {
+      if (!activeGame) return;
+      var list = REAL_URLS[activeGame.id] || [];
+      mirrorIdx = (mirrorIdx + 1) % (list.length + 1);
+      loadRealOrBackup(activeGame);
+    }
+    function openGamePlayer(id) {
+      var g = GAMES.find(function(x) { return x.id === id; }); if (!g) return;
+      activeGame = g; mirrorIdx = 0;
+      var rec = getList('lockedRecentGames').filter(function(x) { return x !== id; });
+      rec.unshift(id); saveList('lockedRecentGames', rec.slice(0, 10));
+      document.getElementById('games-browse-view').style.display = 'none';
+      document.getElementById('player-view').style.display = 'flex';
+      document.getElementById('p-title').innerText = g.title;
+      document.getElementById('p-fav-btn').innerText = isFav(g.id) ? '★' : '☆';
+      document.getElementById('p-views').innerText = '👁 ' + g.views;
+      document.getElementById('p-likes').innerText = g.likes;
+      document.getElementById('p-dislikes').innerText = g.dislikes;
+      loadRealOrBackup(g);
+    }
+    function closeGamePlayer() {
+      var frame = document.getElementById('game-iframe');
+      frame.removeAttribute('src'); frame.removeAttribute('srcdoc');
+      document.getElementById('player-view').style.display = 'none';
+      document.getElementById('games-browse-view').style.display = 'flex';
+      activeGame = null; renderAll();
+    }
+    function togglePlayerFav() { if (activeGame) toggleFav(activeGame.id); }
+    function bumpStat(k) { if (!activeGame) return; activeGame[k]++; document.getElementById('p-' + k).innerText = activeGame[k]; }
+    function toggleGameFullscreen() {
+      var st = document.getElementById('player-stage');
+      if (!document.fullscreenElement) st.requestFullscreen(); else document.exitFullscreen();
+    }
+    renderAll();
+  </script>
+</body>
+</html>
