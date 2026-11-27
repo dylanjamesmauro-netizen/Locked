@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Locked</title>
+  <link id="favicon" rel="shortcut icon" type="image/png" href="">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .games-page {
+      width: 100%;
+      max-width: 1220px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .featured-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 820px) {
+      .featured-strip { grid-template-columns: 1fr; }
+    }
+    .feat-banner {
+      height: 54px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      padding: 0 18px;
+      cursor: pointer;
+      box-shadow: 0 0 16px var(--accent-glow);
+      transition: 0.2s;
+    }
+    .feat-banner:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-light);
+    }
+    .feat-banner-title {
+      position: relative;
+      z-index: 2;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+    }
+    .games-search-input {
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    .cat-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cat-pill {
+      padding: 8px 15px;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: var(--row-bg);
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .cat-pill.active {
+      background: var(--accent);
+      border-color: var(--accent-light);
+      color: #fff;
+    }
+    body.theme-black-white .cat-pill.active {
+      color: #050505;
+    }
+    .section-heading {
+      font-size: 22px;
+      font-weight: 800;
+      color: #f8fafc;
+      margin-top: 4px;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      width: 100%;
+    }
+    @media (max-width: 1080px) {
+      .games-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 760px) {
+      .games-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .game-card {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+      box-shadow: 0 0 18px var(--accent-glow);
+      transition: 0.22s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .game-card:hover {
+      transform: translateY(-4px) scale(1.025);
+      border-color: var(--accent-light);
+      box-shadow: 0 0 28px var(--accent-glow-strong);
+    }
+    .game-art {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      pointer-events: none;
+    }
+    .game-emoji {
+      font-size: 46px;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+    }
+    .game-art-label {
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+    .game-top-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 3;
+    }
+    .game-tags {
+      display: flex;
+      gap: 5px;
+    }
+    .game-tag-pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(10, 8, 22, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f8fafc;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .game-fav-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    body.theme-black-white .game-fav-btn {
+      color: #050505;
+    }
+    .game-bottom-overlay {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 26px 12px 10px 12px;
+      background: linear-gradient(180deg, transparent 0%, rgba(5, 4, 12, 0.92) 100%);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 2;
+    }
+    .game-card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .game-views-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(10, 8, 22, 0.8);
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .player-view {
+      display: none;
+      width: 100%;
+      max-width: 1040px;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin: 0 auto;
+    }
+    .player-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      max-height: 74vh;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: #070510;
+      box-shadow: 0 0 36px var(--accent-glow);
+    }
+    .player-splash {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      z-index: 4;
+    }
+    .player-center-icon {
+      width: 128px;
+      height: 128px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.65);
+    }
+    .player-play-btn {
+      padding: 12px 30px;
+      border-radius: 12px;
+      border: 1px solid var(--accent-light);
+      background: var(--accent-bright);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 0 24px var(--accent-glow-strong);
+    }
+    body.theme-black-white .player-play-btn {
+      color: #050505;
+    }
+    .game-iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+      z-index: 3;
+      background: #05050a;
+    }
+    .player-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 18px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+    }
+    .player-bar-left, .player-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .p-icon-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 5px 8px;
+      border-radius: 8px;
+    }
+    .p-vol-slider {
+      width: 96px;
+      accent-color: var(--accent-bright);
+    }
+    .p-fullscreen-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--accent-light);
+      background: var(--accent-bright);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    body.theme-black-white .p-fullscreen-btn {
+      color: #050505;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="6" width="9" height="12" rx="2.5" fill="#ffffff"/><rect x="11" y="4" width="9" height="12" rx="2.5" fill="#ffffff" fill-opacity="0.65"/></svg></div>
+        <span class="brand-name">Locked</span>
+      </div>
+      <input type="text" class="sidebar-search" placeholder="Search games..." onkeydown="if(event.key==='Enter') location.href='games.html?q='+this.value">
+      <div class="nav-links">
+        <a href="index.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</a>
+        <a href="search.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Web Search</a>
+        <a href="games.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>Games</a>
+        <a href="ai.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M20 9V7c0-1.1-.9-2-2-2h-3c0-1.66-1.34-3-3-3S9 3.34 9 5H6c-1.1 0-2 .9-2 2v2c-1.66 0-3 1.34-3 3s1.34 3 3 3v4c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4c1.66 0 3-1.34 3-3s-1.34-3-3-3zM7.5 11.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5S9.83 13 9 13s-1.5-.67-1.5-1.5zM16 17H8v-2h8v2zm-.5-4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>AI Helper</a>
+        <a href="about.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>About</a>
+      </div>
+    </div>
+    <div class="sidebar-bottom" style="display:flex; flex-direction:column; gap:8px;">
+      <a href="account.html" class="nav-item" id="sidebar-account-link"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg><span id="sidebar-account-text">Sign In</span></a>
+      <a href="settings.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>Settings</a>
+    </div>
+  </div>
+  <div class="content" style="padding: 26px 32px;">
+    <div class="games-page" id="games-browse-view">
+      <div class="featured-strip" id="featured-strip"></div>
+      <input type="text" id="games-search" class="games-search-input" placeholder="Search Games Here..." oninput="renderGamesGrid()">
+      <div class="cat-pills" id="cat-pills"></div>
+      <div class="section-heading" id="games-heading">All Games</div>
+      <div class="games-grid" id="games-grid"></div>
+    </div>
+    <div class="player-view" id="player-view">
+      <div class="player-stage" id="player-stage">
+        <div class="player-splash" id="player-splash">
+          <div class="player-center-icon" id="player-center-icon">🎮</div>
+          <button type="button" class="player-play-btn" onclick="launchCurrentGame()">Play Now</button>
+        </div>
+        <iframe id="game-iframe" class="game-iframe" title="Game Player"></iframe>
+      </div>
+      <div class="player-bar">
+        <div class="player-bar-left">
+          <button type="button" class="p-icon-btn" onclick="closeGamePlayer()">← Back</button>
+          <span id="p-title" style="font-size:15px; font-weight:800; color:#fff;">Game</span>
+          <button type="button" class="p-icon-btn" id="p-fav-btn" onclick="togglePlayerFav()">☆</button>
+          <span id="p-views" style="font-size:13px; color:#94a3b8; font-weight:600;">👁 12.4k</span>
+          <button type="button" class="p-icon-btn" onclick="bumpStat('likes')">👍 <span id="p-likes">412</span></button>
+          <button type="button" class="p-icon-btn" onclick="bumpStat('dislikes')">👎 <span id="p-dislikes">18</span></button>
+        </div>
+        <div class="player-bar-right">
+          <button type="button" class="p-icon-btn" id="p-newtab-btn" style="display:none;" onclick="openGameNewTab()">↗ New Tab</button>
+          <span style="font-size:15px;">🔊</span>
+          <input type="range" class="p-vol-slider" min="0" max="100" value="80">
+          <button type="button" class="p-fullscreen-btn" title="Fullscreen" onclick="toggleGameFullscreen()">⛶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+  <script>
+    function makeDoc(body, code) {
+      var sOpen = '<' + 'script>';
+      var sClose = '<' + '/script>';
+      var style = 'margin:0;background:#070913;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;overflow:hidden;';
+      return '<!DOCTYPE html><html><body style="' + style + '">' + body + sOpen + code + sClose + '</body></html>';
+    }
+    var GAMES = [
+      {
+        id: 'retro-bowl', title: 'Retro Bowl', tags: ['Sports', 'Popular'], views: '248.5k', likes: 3420, dislikes: 48, emoji: '🏈',
+        bg: 'linear-gradient(135deg,#15803d,#14532d)',
+        url: 'https://konggames.com'
+      },
+      {
+        id: 'geometry-dash', title: 'Geometry Dash', tags: ['Action', 'Popular'], views: '312.9k', likes: 4180, dislikes: 72, emoji: '🟨',
+        bg: 'linear-gradient(135deg,#0284c7,#1e1b4b)',
+        url: 'https://mit.edu'
+      },
+      {
+        id: 'slope', title: 'Slope', tags: ['Action', 'Popular'], views: '289.4k', likes: 3890, dislikes: 65, emoji: '🟢',
+        bg: 'linear-gradient(135deg,#16a34a,#064e3b)',
+        url: 'https://kdata1.com'
+      },
+      {
+        id: 'stickman-hook', title: 'Stickman Hook', tags: ['Action', 'Popular'], views: '195.2k', likes: 2740, dislikes: 39, emoji: '🪝',
+        bg: 'linear-gradient(135deg,#e11d48,#4c0519)',
+        url: 'https://github.io'
+      },
+      {
+        id: 'banana-simulator', title: 'Banana Simulator', tags: ['Clicker', 'Popular'], views: '164.7k', likes: 2310, dislikes: 34, emoji: '🍌',
+        bg: 'linear-gradient(135deg,#eab308,#713f12)',
+        html: makeDoc(
+          '<div style="text-align:center;user-select:none;">' +
+          '<div style="font-size:15px;color:#fde047;font-weight:700;letter-spacing:1px;">BANANA SIMULATOR</div>' +
+          '<div id="cnt" style="font-size:44px;font-weight:900;margin:4px 0;">0</div>' +
+          '<div id="bps" style="font-size:13px;color:#94a3b8;margin-bottom:14px;">0 bananas / sec</div>' +
+          '<button id="ban" style="font-size:92px;background:radial-gradient(circle,#fef08a33,transparent 70%);border:none;cursor:pointer;transition:transform 0.08s;border-radius:50%;width:160px;height:160px;">🍌</button>' +
+          '<div id="shop" style="display:grid;grid-template-columns:repeat(2,175px);gap:8px;margin-top:16px;"></div></div>',
+          'var b=0,cpc=1,bps=0,items=[{n:"🍌 Monkey",c:15,p:1,t:"bps"},{n:"🌴 Tree",c:100,p:8,t:"bps"},{n:"✨ Golden Peel",c:50,p:2,t:"cpc"},{n:"🏭 Factory",c:600,p:45,t:"bps"}];' +
+          'var ban=document.getElementById("ban");ban.onclick=function(){b+=cpc;ban.style.transform="scale(0.9)";setTimeout(function(){ban.style.transform="scale(1)";},70);upd();};' +
+          'function upd(){document.getElementById("cnt").innerText=Math.floor(b).toLocaleString();document.getElementById("bps").innerText=bps+" bananas / sec";var sh=document.getElementById("shop");sh.innerHTML="";items.forEach(function(it){var btn=document.createElement("button");btn.style.cssText="padding:8px;border-radius:10px;border:1px solid #eab30855;background:#1e1b4b;color:#fff;font-size:12px;font-weight:700;cursor:pointer;opacity:"+(b>=it.c?"1":"0.5");btn.innerHTML=it.n+"<br><span style=color:#fde047>"+it.c+" 🍌</span>";btn.onclick=function(){if(b<it.c)return;b-=it.c;it.c=Math.round(it.c*1.45);if(it.t==="bps")bps+=it.p;else cpc+=it.p;upd();};sh.appendChild(btn);});}' +
+          'setInterval(function(){if(bps>0){b+=bps/10;upd();}},100);upd();'
+        )
+      }
+    ];
+  </script>
+  <script>
+    GAMES.push(
+      {
+        id: 'snake', title: 'Snake', tags: ['Arcade', 'Classic'], views: '84.2k', likes: 912, dislikes: 24, emoji: '🐍',
+        bg: 'linear-gradient(135deg,#059669,#064e3b)',
+        html: makeDoc('<div>Score: <span id="s">0</span> | Arrows</div><canvas id="c" width="380" height="380" style="border:2px solid #10b981;margin-top:8px;"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),g=19,sn=[{x:10,y:10}],dx=1,dy=0,fd={x:14,y:14},sc=0;' +
+          'document.onkeydown=function(e){if(e.key==="ArrowUp"&&dy===0){dx=0;dy=-1;}if(e.key==="ArrowDown"&&dy===0){dx=0;dy=1;}if(e.key==="ArrowLeft"&&dx===0){dx=-1;dy=0;}if(e.key==="ArrowRight"&&dx===0){dx=1;dy=0;}};' +
+          'setInterval(function(){var hd=sn.at(0),h={x:(hd.x+dx+20)%20,y:(hd.y+dy+20)%20};sn.unshift(h);if(h.x===fd.x&&h.y===fd.y){sc++;document.getElementById("s").innerText=sc;fd={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};}else sn.pop();ctx.clearRect(0,0,380,380);ctx.fillStyle="#ef4444";ctx.fillRect(fd.x*g,fd.y*g,g-2,g-2);ctx.fillStyle="#10b981";sn.forEach(function(p){ctx.fillRect(p.x*g,p.y*g,g-2,g-2);});},110);')
+      },
+      {
+        id: 'flappy', title: 'Flappy Bird', tags: ['Arcade', 'Classic'], views: '71.8k', likes: 830, dislikes: 42, emoji: '🐤',
+        bg: 'linear-gradient(135deg,#0284c7,#0c4a6e)',
+        html: makeDoc('<div>Score: <span id="sc">0</span> | Click or Space</div><canvas id="c" width="360" height="420" style="background:#0ea5e9;border-radius:10px;margin-top:8px;"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),y=180,v=0,pp=[],f=0,sc=0;' +
+          'function fl(){v=-6.5;}c.onclick=fl;document.onkeydown=function(e){if(e.code==="Space")fl();};' +
+          'setInterval(function(){f++;v+=0.38;y+=v;if(f%95===0)pp.push({x:360,t:60+Math.random()*180,p:false});ctx.clearRect(0,0,360,420);ctx.fillStyle="#22c55e";pp.forEach(function(p){p.x-=2.6;ctx.fillRect(p.x,0,50,p.t);ctx.fillRect(p.x,p.t+130,50,420);if(!p.p&&p.x<60){p.p=true;sc++;document.getElementById("sc").innerText=sc;}if(84>p.x&&60<p.x+50&&(y<p.t||y+24>p.t+130)){y=180;v=0;pp=[];sc=0;document.getElementById("sc").innerText=0;}});if(y>400||y<0){y=180;v=0;pp=[];sc=0;}ctx.fillStyle="#facc15";ctx.fillRect(60,y,24,24);},20);')
+      },
+      {
+        id: 'dino', title: 'Dino Runner', tags: ['Arcade', 'Classic'], views: '88.9k', likes: 990, dislikes: 17, emoji: '🦖',
+        bg: 'linear-gradient(135deg,#334155,#0f172a)',
+        html: makeDoc('<div>Distance: <span id="sc">0</span> | Space / Click</div><canvas id="c" width="500" height="220" style="border:2px solid #94a3b8;margin-top:8px;"></canvas>',
+          'var c=document.getElementById("c"),ctx=c.getContext("2d"),dy=150,vy=0,ox=500,sc=0;function jmp(){if(dy>=150)vy=-11;}c.onclick=jmp;document.onkeydown=function(e){if(e.code==="Space"||e.key==="ArrowUp")jmp();};' +
+          'setInterval(function(){vy+=0.65;dy+=vy;if(dy>150){dy=150;vy=0;}ox-=5.5;if(ox<-20){ox=500+Math.random()*120;sc+=10;document.getElementById("sc").innerText=sc;}if(ox<76&&ox+20>50&&dy+34>154){ox=500;sc=0;document.getElementById("sc").innerText=0;}ctx.clearRect(0,0,500,220);ctx.fillStyle="#64748b";ctx.fillRect(0,184,500,4);ctx.fillStyle="#34d399";ctx.fillRect(50,dy,26,34);ctx.fillStyle="#f43f5e";ctx.fillRect(ox,154,20,30);},16);')
+      }
+    );
+    var activeCat = 'All', activeGame = null;
+    function getFavs() { try { return JSON.parse(localStorage.getItem('lockedFavGames') || '[]'); } catch (e) { return []; } }
+    function isFav(id) { return getFavs().indexOf(id) !== -1; }
+    function toggleFav(id, e) {
+      if (e) e.stopPropagation();
+      var f = getFavs(), i = f.indexOf(id);
+      if (i === -1) f.push(id); else f.splice(i, 1);
+      try { localStorage.setItem('lockedFavGames', JSON.stringify(f)); } catch (err) {}
+      renderGamesGrid();
+      if (activeGame && activeGame.id === id) document.getElementById('p-fav-btn').innerText = isFav(id) ? '★' : '☆';
+    }
+    var feat = document.getElementById('featured-strip');
+    GAMES.slice(0, 3).forEach(function(g) {
+      var b = document.createElement('div');
+      b.className = 'feat-banner';
+      b.style.background = g.bg;
+      b.innerHTML = '<div class="feat-banner-title">' + g.emoji + ' ' + g.title + '</div>';
+      b.onclick = function() { openGamePlayer(g.id); };
+      feat.appendChild(b);
+    });
+    var pills = document.getElementById('cat-pills');
+    ['All', 'Popular', 'Favorites', 'Sports', 'Action', 'Clicker', 'Arcade', 'Classic'].forEach(function(cat) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cat-pill' + (cat === 'All' ? ' active' : '');
+      btn.innerText = cat;
+      btn.onclick = function() {
+        activeCat = cat;
+        document.querySelectorAll('.cat-pill').forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('games-heading').innerText = (cat === 'All') ? 'All Games' : cat;
+        renderGamesGrid();
+      };
+      pills.appendChild(btn);
+    });
+    function renderGamesGrid() {
+      var grid = document.getElementById('games-grid');
+      var q = (document.getElementById('games-search').value || '').trim().toLowerCase();
+      grid.innerHTML = '';
+      GAMES.filter(function(g) {
+        var ms = !q || g.title.toLowerCase().indexOf(q) !== -1;
+        var mc = (activeCat === 'All') || (activeCat === 'Favorites' ? isFav(g.id) : g.tags.indexOf(activeCat) !== -1);
+        return ms && mc;
+      }).forEach(function(g) {
+        var card = document.createElement('div');
+        card.className = 'game-card';
+        card.style.background = g.bg;
+        card.onclick = function() { openGamePlayer(g.id); };
+        card.innerHTML =
+          '<div class="game-top-overlay"><div class="game-tags">' + g.tags.map(function(t) { return '<span class="game-tag-pill">' + t + '</span>'; }).join('') + '</div><button type="button" class="game-fav-btn" onclick="toggleFav(\'' + g.id + '\', event)">' + (isFav(g.id) ? '★' : '☆') + '</button></div>' +
+          '<div class="game-art"><div class="game-emoji">' + g.emoji + '</div><div class="game-art-label">' + g.title.toUpperCase() + '</div></div>' +
+          '<div class="game-bottom-overlay"><div class="game-card-title">' + g.title + '</div><div class="game-views-pill">👁 ' + g.views + '</div></div>';
+        grid.appendChild(card);
+      });
+    }
+    function openGamePlayer(id) {
+      var g = GAMES.find(function(x) { return x.id === id; });
+      if (!g) return;
+      activeGame = g;
+      document.getElementById('games-browse-view').style.display = 'none';
+      document.getElementById('player-view').style.display = 'flex';
+      document.getElementById('player-splash').style.display = 'flex';
+      document.getElementById('player-splash').style.background = g.bg;
+      var icon = document.getElementById('player-center-icon');
+      icon.style.background = g.bg;
+      icon.innerText = g.emoji;
+      var frame = document.getElementById('game-iframe');
+      frame.style.display = 'none';
+      frame.removeAttribute('src');
+      frame.removeAttribute('srcdoc');
+      document.getElementById('p-newtab-btn').style.display = g.url ? 'inline-flex' : 'none';
+      document.getElementById('p-title').innerText = g.title;
+      document.getElementById('p-fav-btn').innerText = isFav(g.id) ? '★' : '☆';
+      document.getElementById('p-views').innerText = '👁 ' + g.views;
+      document.getElementById('p-likes').innerText = g.likes;
+      document.getElementById('p-dislikes').innerText = g.dislikes;
+    }
+    function launchCurrentGame() {
+      if (!activeGame) return;
+      document.getElementById('player-splash').style.display = 'none';
+      var frame = document.getElementById('game-iframe');
+      frame.style.display = 'block';
+      if (activeGame.url) {
+        frame.src = activeGame.url;
+      } else {
+        frame.srcdoc = activeGame.html;
+      }
+      setTimeout(function() { try { frame.contentWindow.focus(); } catch (e) {} }, 80);
+    }
+    function openGameNewTab() {
+      if (activeGame && activeGame.url) window.open(activeGame.url, '_blank');
+    }
+    function closeGamePlayer() {
+      var frame = document.getElementById('game-iframe');
+      frame.removeAttribute('src');
+      frame.removeAttribute('srcdoc');
+      frame.style.display = 'none';
+      document.getElementById('player-view').style.display = 'none';
+      document.getElementById('games-browse-view').style.display = 'flex';
+      activeGame = null;
+    }
+    function togglePlayerFav() { if (activeGame) toggleFav(activeGame.id); }
+    function bumpStat(k) { if (!activeGame) return; activeGame[k]++; document.getElementById('p-' + k).innerText = activeGame[k]; }
+    function toggleGameFullscreen() {
+      var st = document.getElementById('player-stage');
+      if (!document.fullscreenElement) { if (st.requestFullscreen) st.requestFullscreen(); }
+      else { if (document.exitFullscreen) document.exitFullscreen(); }
+    }
+    renderGamesGrid();
+  </script>
+</body>
+</html>
